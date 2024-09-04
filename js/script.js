@@ -19,61 +19,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Change color every 2 seconds with a smooth transition
     setInterval(changeBackgroundColor, 2000);
+
+    let enterButton = document.getElementById("addTask");
+    let askUserButton = document.getElementById("askUser");
+    let input = document.getElementById("userInput");
+    let ul = document.querySelector("ul");
+    let item = document.getElementsByTagName("li");
+
+    function inputLength() {
+        return input.value.length;
+    }
+
+    function listLength() {
+        return item.length;
+    }
+
+    // Function to check if the task already exists (case-insensitive)
+    function isDuplicate(task) {
+        let itemsArray = Array.from(item).map(li => li.firstChild.textContent.toLowerCase());
+        return itemsArray.includes(task.toLowerCase());
+    }
+
+    function createListElement(task) {
+        if (isDuplicate(task)) {
+            alert("Task already exists!");
+            return;
+        }
+
+        let li = document.createElement("li");
+        li.appendChild(document.createTextNode(task));
+        ul.appendChild(li);
+        input.value = "";
+
+        function crossOut() {
+            li.classList.toggle("done");
+        }
+
+        li.addEventListener("click", crossOut);
+
+        let dBtn = document.createElement("button");
+        dBtn.appendChild(document.createTextNode("X"));
+        li.appendChild(dBtn);
+        
+        dBtn.addEventListener("click", function () {
+            ul.removeChild(li);
+        });
+    }
+
+    function addListAfterClick() {
+        if (inputLength() > 0) {
+            createListElement(input.value);
+        }
+    }
+
+    function addListAfterKeypress(event) {
+        if (inputLength() > 0 && event.which === 13) {
+            createListElement(input.value);
+        }
+    }
+
+    function askUserForTasks() {
+        let task;
+        do {
+            task = prompt("Enter a new task:");
+            if (task && task.trim()) {
+                createListElement(task.trim());
+            }
+        } while (task && task.trim());
+    }
+
+    enterButton.addEventListener("click", addListAfterClick);
+    input.addEventListener("keypress", addListAfterKeypress);
+    askUserButton.addEventListener("click", askUserForTasks);
 });
-
-let enterButton = document.getElementById("enter");
-let input = document.getElementById("userInput");
-let ul = document.querySelector("ul");
-let item = document.getElementsByTagName("li");
-
-function inputLength() {
-    return input.value.length;
-}
-
-function listLength() {
-    return item.length;
-}
-
-function createListElement() {
-    let li = document.createElement("li"); // creates an element "li"
-    li.appendChild(document.createTextNode(input.value)); //makes text from input field the li text
-    ul.appendChild(li); //adds li to ul
-    input.value = ""; //Reset text input field
-
-
-    //START STRIKETHROUGH
-    // because it's in the function, it only adds it for new items
-    function crossOut() {
-        li.classList.toggle("done");
-    }
-
-    li.addEventListener("click", crossOut);
-    //END STRIKETHROUGH
-
-
-    // START ADD DELETE BUTTON
-    let dBtn = document.createElement("button");
-    dBtn.appendChild(document.createTextNode("X"));
-    li.appendChild(dBtn);
-
-}
-
-
-function addListAfterClick() {
-    if (inputLength() > 0) { //makes sure that an empty input field doesn't create a li
-        createListElement();
-    }
-}
-
-function addListAfterKeypress(event) {
-    if (inputLength() > 0 && event.which === 13) { //this now looks to see if you hit "enter"/"return"
-        //the 13 is the enter key's keycode, this could also be display by event.keyCode === 13
-        createListElement();
-    }
-}
-
-
-enterButton.addEventListener("click", addListAfterClick);
-
-input.addEventListener("keypress", addListAfterKeypress);
-
